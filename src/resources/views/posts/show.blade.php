@@ -13,6 +13,7 @@
     <hr>
 
     <a href="{{ route('posts.index') }}">一覧へ戻る</a>
+@if (auth()->id() == $post->user_id)
     <a href="{{ route('posts.edit', $post) }}">編集</a>
 
     <form action="{{ route('posts.destroy', $post) }}" method="POST"
@@ -22,4 +23,5 @@
         @method('DELETE')
         <button type="submit">削除</button>
     </form>
+@endif
 @endsection
