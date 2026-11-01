@@ -1,7 +1,7 @@
 # techmeets-blog
 
 ## 概要
-Docker上でLaravelを動かす開発環境です。Week 7以降、このリポジトリにブログアプリの機能を追加していきます。
+Docker上で動くLaravel製のWebアプリです。認証・コメント付きのブログ、商品管理、イベント予約の機能があります。
 
 ## 使用技術
 - PHP 8.x / Laravel
@@ -46,6 +46,12 @@ docker compose exec app php artisan migrate
 
 画面の見た目(CSS・JS)をビルドします。Docker 内には Node が入っていないため、一時的な Node コンテナを使います。
 
+イベントのサンプルデータを入れます(任意)。
+
+```bash
+docker compose exec app php artisan db:seed --class=EventSeeder
+```
+
 ```bash
 docker run --rm -v "$(pwd)/src:/app" -w /app node:22 sh -c "npm install && npm run build"
 ```
@@ -61,14 +67,9 @@ docker run --rm -v "$(pwd)/src:/app" -w /app node:22 sh -c "npm install && npm r
 - アプリケーション: http://localhost
 - phpMyAdmin: http://localhost:8080
 
-## 機能一覧
-- Laravelのウェルカムページの表示
-- phpMyAdminでのDB確認
-- マイグレーションの実行
-
 ## ブログシステム(Laravel)
 
-Laravel(MVC)で作った、ブログ・商品管理・イベント予約の Web アプリです。
+Laravel(MVC)とLaravel Breezeで作った、認証付きのブログ・商品管理・イベント予約の Web アプリです。
 
 ### 機能
 

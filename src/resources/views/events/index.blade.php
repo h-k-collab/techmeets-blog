@@ -18,5 +18,5 @@
         <p>イベントはまだありません。</p>
     @endforelse
 
-    {{ $events->links() }}
+    {{ $events->links('pagination::default') }}
 @endsection

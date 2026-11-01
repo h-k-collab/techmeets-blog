@@ -39,5 +39,5 @@
         @endforelse
     </table>
 
-    {{ $reservations->links() }}
+    {{ $reservations->links('pagination::default') }}
 @endsection
