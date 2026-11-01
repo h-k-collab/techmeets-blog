@@ -1,7 +1,7 @@
 # techmeets-blog
 
 ## 概要
-Docker上でLaravelを動かす開発環境です。Week 7以降、このリポジトリにブログアプリの機能を追加していきます。
+Docker上で動くLaravel製のWebアプリです。認証・コメント付きのブログ、商品管理、イベント予約の機能があります。
 
 ## 使用技術
 - PHP 8.x / Laravel
@@ -44,26 +44,49 @@ DB_PASSWORD=secret
 docker compose exec app php artisan migrate
 ```
 
+画面の見た目(CSS・JS)をビルドします。Docker 内には Node が入っていないため、一時的な Node コンテナを使います。
+
+イベントのサンプルデータを入れます(任意)。
+
+```bash
+docker compose exec app php artisan db:seed --class=EventSeeder
+```
+
+```bash
+docker run --rm -v "$(pwd)/src:/app" -w /app node:22 sh -c "npm install && npm run build"
+```
+
+> Windows の Git Bash では、次のように実行してください。
+> ```bash
+> MSYS_NO_PATHCONV=1 docker run --rm -v "$(pwd -W)/src:/app" -w /app node:22 sh -c "npm install && npm run build"
+> ```
+
+ブラウザで `http://localhost/` を開き、`/register` からユーザーを登録してログインします。
+
 ## アクセス先
 - アプリケーション: http://localhost
 - phpMyAdmin: http://localhost:8080
 
-## 機能一覧
-- Laravelのウェルカムページの表示
-- phpMyAdminでのDB確認
-- マイグレーションの実行
-
 ## ブログシステム(Laravel)
 
-Laravel(MVC)で作った、ブログ・商品管理・イベント予約の Web アプリです。
+Laravel(MVC)とLaravel Breezeで作った、認証付きのブログ・商品管理・イベント予約の Web アプリです。
 
 ### 機能
 
 **ブログ(`/posts`)**
-- 投稿一覧(10件ずつページネーション)
-- 投稿の詳細表示・作成・編集・削除
+- 投稿一覧(10件ずつページネーション)・詳細表示(誰でも閲覧可能)
+- 投稿の作成・編集・削除(ログインが必要)
+- 自分の投稿だけ編集・削除できる(他人の投稿は403)
 - 入力チェック(バリデーション)
 - Blade のレイアウト継承
+
+**認証(Laravel Breeze)**
+- ユーザー登録・ログイン・ログアウト
+
+**コメント(投稿詳細ページ)**
+- コメント一覧(ログインしていなくても閲覧可能)
+- ログインユーザーだけがコメントを書き込める
+- 自分のコメントだけ削除できる
 
 **商品管理(`/products`)**
 - 商品の一覧・詳細・登録・編集・削除(CRUD)
@@ -84,6 +107,7 @@ Laravel(MVC)で作った、ブログ・商品管理・イベント予約の Web 
 | content | text | 本文 |
 | category | varchar(50) | カテゴリ |
 | created_at / updated_at | timestamp | 作成・更新日時 |
+| user_id | bigint | users.id への外部キー(投稿者) |
 
 **products(商品)**
 
@@ -118,6 +142,16 @@ Laravel(MVC)で作った、ブログ・商品管理・イベント予約の Web 
 | email | varchar(255) | メールアドレス |
 | people | unsigned int | 人数 |
 | reserved_at | datetime | 予約日時 |
+| created_at / updated_at | timestamp | 作成・更新日時 |
+
+**comments(コメント)**
+
+| カラム | 型 | 説明 |
+|---|---|---|
+| id | bigint | 主キー |
+| post_id | bigint | posts.id への外部キー(投稿削除時にコメントも削除) |
+| user_id | bigint | users.id への外部キー(書いた人) |
+| content | text | 本文 |
 | created_at / updated_at | timestamp | 作成・更新日時 |
 
 ### 画面

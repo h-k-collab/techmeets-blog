@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.blog')
 
 @section('title', '商品一覧')
 
@@ -30,5 +30,5 @@
         @endforelse
     </table>
 
-    {{ $products->links() }}
+    {{ $products->links('pagination::default') }}
 @endsection

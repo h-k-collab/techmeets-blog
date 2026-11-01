@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.blog')
 
 @section('title', '予約一覧')
 
@@ -39,5 +39,5 @@
         @endforelse
     </table>
 
-    {{ $reservations->links() }}
+    {{ $reservations->links('pagination::default') }}
 @endsection

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.blog')
 
 @section('title', 'イベント一覧')
 
@@ -18,5 +18,5 @@
         <p>イベントはまだありません。</p>
     @endforelse
 
-    {{ $events->links() }}
+    {{ $events->links('pagination::default') }}
 @endsection
