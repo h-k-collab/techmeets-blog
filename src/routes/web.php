@@ -22,6 +22,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
     Route::delete('comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+    Route::resource('products', ProductController::class);
+    Route::resource('reservations', ReservationController::class)->only(['index', 'destroy']);
 });
 Route::resource('posts', PostController::class)->only(['index', 'show']);
 
@@ -33,8 +35,8 @@ Route::middleware('auth')->group(function () {
 
 
 
-Route::resource('products', ProductController::class);
+
 Route::resource('events', EventController::class)->only(['index', 'show']);
 Route::post('events/{event}/reservations', [ReservationController::class, 'store'])->name('reservations.store');
-Route::resource('reservations', ReservationController::class)->only(['index', 'destroy']);
+
 require __DIR__.'/auth.php';
