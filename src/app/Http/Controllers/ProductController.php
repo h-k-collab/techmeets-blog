@@ -3,10 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Repositories\ProductRepository;
+use App\Services\ProductService;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
+    public function __construct(
+        private ProductService $productService,
+        private ProductRepository $productRepository
+    ) {}
+
     private function rules(): array
     {
         return [
@@ -20,7 +27,7 @@ class ProductController extends Controller
 
     public function index()
     {
-        $products = Product::latest()->paginate(10);
+        $products = $this->productRepository->getPaginated();
         return view('products.index', compact('products'));
     }
 
@@ -31,7 +38,7 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
-        $product = Product::create($request->validate($this->rules()));
+        $product = $this->productService->createProduct($request->validate($this->rules()));
 
         return redirect()->route('products.show', $product)
             ->with('success', '商品を登録しました');
@@ -49,7 +56,7 @@ class ProductController extends Controller
 
     public function update(Request $request, Product $product)
     {
-        $product->update($request->validate($this->rules()));
+        $this->productService->updateProduct($product, $request->validate($this->rules()));
 
         return redirect()->route('products.show', $product)
             ->with('success', '商品を更新しました');
@@ -57,7 +64,7 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
-        $product->delete();
+        $this->productService->deleteProduct($product);
 
         return redirect()->route('products.index')
             ->with('success', '商品を削除しました');
