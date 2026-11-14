@@ -24,6 +24,7 @@
         <a href="{{ route('posts.create') }}">新規投稿</a>
         <a href="{{ route('products.index') }}">商品管理</a>
         <a href="{{ route('events.index') }}">イベント</a>
+        <a href="{{ route('tasks.index') }}">タスク</a>
     </header>
 
     <main>
