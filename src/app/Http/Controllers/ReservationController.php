@@ -4,14 +4,21 @@ namespace App\Http\Controllers;
 
 use App\Models\Event;
 use App\Models\Reservation;
+use App\Repositories\ReservationRepository;
+use App\Services\ReservationService;
 use Illuminate\Http\Request;
 
 class ReservationController extends Controller
 {
+    public function __construct(
+        private ReservationService $reservationService,
+        private ReservationRepository $reservationRepository
+    ) {}
+
     // 予約一覧
     public function index()
     {
-        $reservations = Reservation::with('event')->latest()->paginate(10);
+        $reservations = $this->reservationRepository->getPaginated();
         return view('reservations.index', compact('reservations'));
     }
 
@@ -25,7 +32,7 @@ class ReservationController extends Controller
             'reserved_at' => 'required|date',
         ]);
 
-        $event->reservations()->create($validated);
+        $this->reservationService->createReservation($event, $validated);
 
         return redirect()->route('reservations.index')
             ->with('success', '予約しました');
@@ -34,7 +41,7 @@ class ReservationController extends Controller
     // 予約のキャンセル
     public function destroy(Reservation $reservation)
     {
-        $reservation->delete();
+        $this->reservationService->cancelReservation($reservation);
 
         return redirect()->route('reservations.index')
             ->with('success', '予約をキャンセルしました');

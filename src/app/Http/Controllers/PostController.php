@@ -3,14 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use App\Repositories\PostRepository;
+use App\Services\PostService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class PostController extends Controller
 {
-    // 一覧(10件ずつ)
+    public function __construct(
+        private PostService $postService,
+        private PostRepository $postRepository
+    ) {}
+
+    // 一覧
     public function index()
     {
-        $posts = Post::latest()->latest('id')->paginate(10);
+        $posts = $this->postRepository->getPublished();
         return view('posts.index', compact('posts'));
     }
 
@@ -24,17 +32,17 @@ class PostController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-        'title'    => 'required|max:200',
-        'content'  => 'required',
-        'category' => 'required|max:50',
-    ]);
+            'title'    => 'required|max:200',
+            'content'  => 'required',
+            'category' => 'required|max:50',
+        ]);
 
-    $validated['user_id'] = auth()->id(); // ← 足した1行
+        $validated['user_id'] = auth()->id();
 
-    $post = Post::create($validated);
+        $post = $this->postService->createPost($validated);
 
-    return redirect()->route('posts.show', $post)
-        ->with('success', '投稿を作成しました');
+        return redirect()->route('posts.show', $post)
+            ->with('success', '投稿を作成しました');
     }
 
     // 詳細
@@ -44,44 +52,38 @@ class PostController extends Controller
     }
 
     // 編集フォーム
-public function edit(Post $post)
-{
-    if ($post->user_id != auth()->id()) {
-        abort(403, 'この操作は許可されていません');
+    public function edit(Post $post)
+    {
+        Gate::authorize('update', $post);
+
+        return view('posts.edit', compact('post'));
     }
 
-    return view('posts.edit', compact('post'));
-}
+    // 更新の保存
+    public function update(Request $request, Post $post)
+    {
+        Gate::authorize('update', $post);
 
-// 更新の保存
-public function update(Request $request, Post $post)
-{
-    if ($post->user_id != auth()->id()) {
-        abort(403, 'この操作は許可されていません');
+        $validated = $request->validate([
+            'title'    => 'required|max:200',
+            'content'  => 'required',
+            'category' => 'required|max:50',
+        ]);
+
+        $post = $this->postService->updatePost($post->id, $validated);
+
+        return redirect()->route('posts.show', $post)
+            ->with('success', '投稿を更新しました');
     }
 
-    $validated = $request->validate([
-        'title'    => 'required|max:200',
-        'content'  => 'required',
-        'category' => 'required|max:50',
-    ]);
+    // 削除
+    public function destroy(Post $post)
+    {
+        Gate::authorize('delete', $post);
 
-    $post->update($validated);
+        $this->postRepository->delete($post);
 
-    return redirect()->route('posts.show', $post)
-        ->with('success', '投稿を更新しました');
-}
-
-// 削除
-public function destroy(Post $post)
-{
-    if ($post->user_id != auth()->id()) {
-        abort(403, 'この操作は許可されていません');
+        return redirect()->route('posts.index')
+            ->with('success', '投稿を削除しました');
     }
-
-    $post->delete();
-
-    return redirect()->route('posts.index')
-        ->with('success', '投稿を削除しました');
-}
 }
