@@ -171,3 +171,21 @@ Laravel(MVC)とLaravel Breezeで作った、認証付きのブログ・商品管
 **予約一覧**
 
 ![予約一覧](docs/images/reservations.png)
+
+## Week 10: Laravel API + Vue フロントエンド
++
++### 動かし方
++
++1. Laravel(API)を起動する。`laravel-docker-app` のルートで次を実行する。
++   - `docker compose up -d`
++   - `docker compose exec app php artisan migrate`
++   - `docker compose exec app php artisan db:seed`(API 投稿用のテストユーザー `test@example.com` を作る)
++   - API は `http://localhost/api/posts` で確認できる
++2. フロントエンド(Vue)を起動する。`my-frontend` フォルダで次を実行する。
++   - `npm install`
++   - `npm run dev`
++   - ブラウザで `http://localhost:5173` を開く
++
++### コンポーネント分割の理由
++
++画面を `App.vue`(データの取得を担当する親)、`PostForm.vue`(新規投稿の入力と送信)、`PostList.vue`(投稿を並べる)、`PostCard.vue`(投稿1件の表示)の4つに分けた。1つのファイルに全部書くと、表示を変えたいときも、送信の処理を直したいときも同じファイルを触ることになり、どこを直せばよいか分かりにくくなる。分けておけば「見た目は PostCard」「入力は PostForm」「データの取得は App」と役割ごとに直す場所が決まり、不具合の原因も探しやすい。また一覧のデータは親の App だけが持ち、子には props で渡し、フォームの保存が終わったら emit で親に知らせて取り直す形にしたので、データの流れが一方向で分かりやすい。
