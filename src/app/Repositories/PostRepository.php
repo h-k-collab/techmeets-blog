@@ -6,10 +6,10 @@ use App\Models\Post;
 
 class PostRepository
 {
-    // 全件取得（最新順・ページネーション付き）
+    // 全件取得(最新順・ページネーション付き。投稿者も、まとめて取得)
     public function getAll()
     {
-        return Post::latest()->paginate(10);
+        return Post::with('user')->latest()->paginate(10);
     }
 
     // IDで1件取得
@@ -18,9 +18,7 @@ class PostRepository
         return Post::findOrFail($id);
     }
 
-    // 一覧表示用の投稿を取得（最新順・ページネーション付き）
-    // Week 7・8 の posts には公開状態の列がないため、ここでは条件をつけずに取得する
-    // （status 列を追加したら、ここに ->where('status', 'published') を足すだけで済む）
+    // 一覧表示用の投稿を取得(最新順・ページネーション付き)
     public function getPublished()
     {
         return Post::latest()->paginate(10);
