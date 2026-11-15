@@ -13,4 +13,10 @@ class Post extends Model
     {
         return $this->hasMany(Comment::class);
     }
+
+    // 投稿の作者
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
