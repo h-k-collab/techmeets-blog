@@ -15,7 +15,7 @@
         </div>
     @endif
 
-    <form action="{{ route('posts.store') }}" method="POST">
+    <form action="{{ route('posts.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
         <label for="title">タイトル</label>
@@ -26,6 +26,8 @@
 
         <label for="content">本文</label>
         <textarea id="content" name="content" rows="10">{{ old('content') }}</textarea>
+        <label for="image">画像(任意)</label>
+        <input type="file" id="image" name="image" accept="image/*">
 
         <button type="submit" class="btn">投稿する</button>
     </form>

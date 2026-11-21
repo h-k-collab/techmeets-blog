@@ -7,6 +7,7 @@ use App\Repositories\PostRepository;
 use App\Services\PostService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
@@ -35,9 +36,15 @@ class PostController extends Controller
             'title'    => 'required|max:200',
             'content'  => 'required',
             'category' => 'required|max:50',
+            'image'    => 'nullable|image|max:2048',
         ]);
 
         $validated['user_id'] = auth()->id();
+
+        if ($request->hasFile('image')) {
+            $validated['image_path'] = Storage::disk('s3')->put('images', $request->file('image'));
+        }
+        unset($validated['image']);
 
         $post = $this->postService->createPost($validated);
 

@@ -10,6 +10,13 @@
 
     <div>{!! nl2br(e($post->content)) !!}</div>
 
+    @if ($post->image_path)
+        <p>
+            <img src="{{ Storage::disk('s3')->temporaryUrl($post->image_path, now()->addMinutes(10)) }}"
+                 alt="{{ $post->title }}" style="max-width:100%;">
+        </p>
+    @endif
+
     <hr>
 
     <a href="{{ route('posts.index') }}">一覧へ戻る</a>
