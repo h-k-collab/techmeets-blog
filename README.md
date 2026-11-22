@@ -173,7 +173,6 @@ Laravel(MVC)とLaravel Breezeで作った、認証付きのブログ・商品管
 ![予約一覧](docs/images/reservations.png)
 
 ## Week 10: Laravel API + Vue フロントエンド
-## Week 10: Laravel API + Vue フロントエンド
 
 ### 動かし方
 
