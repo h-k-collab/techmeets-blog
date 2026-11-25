@@ -1,49 +1,49 @@
 services:
-  # Nginx（Webサーバー）
+  # Nginx(Webサーバー)
   nginx:
-    image: nginx:latest
+    image: nginx:latest                                  # 公式の nginx のイメージを使う
     ports:
-      - "${WEB_PORT}:80"
+      - "${WEB_PORT}:80"                                 # PC の WEB_PORT(80)を、コンテナの80番につなぐ
     volumes:
-      - ./src:/var/www/html   # ホストPCの src/（Laravelプロジェクト）をコンテナ内に同期させる
-      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./src:/var/www/html                              # PC の src/(Laravel)をコンテナ内に同期させる
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf   # nginx の設定ファイルを差し込む
     depends_on:
-      - app
+      - app                                              # app が起動してから、nginx を起動する
     networks:
-      - app-network
+      - app-network                                      # 同じネットワークに入る
 
-  # PHP-FPM（アプリケーション）
+  # PHP-FPM(アプリケーション)
   app:
     build:
-      context: .
-      dockerfile: docker/php/Dockerfile
+      context: .                                         # このフォルダを、イメージを作る場所にする
+      dockerfile: docker/php/Dockerfile                  # PHP のイメージの作り方が書かれたファイル
     volumes:
-      - ./src:/var/www/html   # LaravelのDB接続設定は src/.env に書く（ここには書かない）
+      - ./src:/var/www/html                              # Laravel のコードを同期させる(DB の設定は src/.env に書く)
     depends_on:
-      - db
+      - db                                               # db が起動してから、app を起動する
     networks:
       - app-network
 
-  # MySQL（データベース）
+  # MySQL(データベース)
   db:
-    image: mysql:8.0
+    image: mysql:8.0                                     # MySQL 8.0 のイメージを使う
     ports:
-      - "${DB_HOST_PORT}:3306"
+      - "${DB_HOST_PORT}:3306"                           # PC の3306番を、コンテナの3306番につなぐ
     environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}                  # 最初に作るデータベースの名前
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}        # root のパスワード
     volumes:
-      - db-data:/var/lib/mysql   # MySQLのデータを「db-data」というボリュームに永続化
+      - db-data:/var/lib/mysql                           # DB のデータを「db-data」に永続化する
     networks:
       - app-network
 
-  # phpMyAdmin（データベース管理ツール）
+  # phpMyAdmin(データベース管理ツール)
   phpmyadmin:
-    image: phpmyadmin:latest
+    image: phpmyadmin:latest                             # phpMyAdmin のイメージを使う
     ports:
-      - "${PMA_PORT}:80"
+      - "${PMA_PORT}:80"                                 # PC の8080番で、画面を開けるようにする
     environment:
-      PMA_HOST: db
+      PMA_HOST: db                                       # つなぐ先は、db サービス
       PMA_USER: root
       PMA_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     depends_on:
@@ -51,11 +51,18 @@ services:
     networks:
       - app-network
 
-# 永続化ボリューム（コンテナを削除してもDBのデータを残す）
+  # Mailpit(開発用のメール受信ツール)
+  mailpit:
+    image: axllent/mailpit                               # Mailpit のイメージを使う
+    ports:
+      - "8025:8025"                                      # 受け取ったメールを見る画面(http://localhost:8025)
+    networks:
+      - app-network                                      # app と同じネットワークに入る(メールを受け取るのは、1025番だが、外に出さない)
+
+# 永続化ボリューム(コンテナを削除しても DB のデータを残す)
 volumes:
   db-data:
 
-# 仮想ネットワーク（同じネットワーク内のコンテナはサービス名で通信できる）
+# 仮想ネットワーク(同じネットワーク内のコンテナは、サービス名で通信できる)
 networks:
   app-network:
-    driver: bridge
